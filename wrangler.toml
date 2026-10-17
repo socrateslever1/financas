@@ -1,0 +1,9 @@
+name = "open-minha-financas"
+compatibility_date = "2026-10-17"
+pages_build_output_dir = "./dist"
+
+# Após criar o banco D1 no Cloudflare, adicione:
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "open-minha-financas"
+# database_id = "ID_REAL_DO_BANCO"

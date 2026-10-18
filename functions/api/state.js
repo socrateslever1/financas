@@ -1,6 +1,6 @@
 import{runtimeExtra}from "../../database/runtime-columns.js";
 import{readSchema}from "../../database/schema-map.js";
-import{configured,json,valid,sameOrigin}from "./_session.js";
+import{configured,json,valid,sameOrigin}from "../../lib/session.js";
 const tables=readSchema(),extra=runtimeExtra(),names=Object.keys(tables);for(const [t,cols]of Object.entries(extra))tables[t].push(...cols);
 async function gate(request,env){if(!configured(env))return json({error:"D1 e segredos não configurados"},503);if(!(await valid(request,env)))return json({error:"Faça login para sincronizar"},401);return null}
 export async function onRequestGet({request,env}){const blocked=await gate(request,env);if(blocked)return blocked;try{const rows=await Promise.all(names.map(async table=>[table,(await env.DB.prepare('SELECT * FROM "'+table+'"').all()).results||[]]));const meta=await env.DB.prepare("SELECT version FROM web_meta WHERE id='main'").first();return json({data:Object.fromEntries(rows),version:meta?.version??0})}catch{return json({error:"Inicialize o banco com npm run schema e wrangler d1 execute"},503)}}

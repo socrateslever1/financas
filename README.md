@@ -22,7 +22,7 @@ O frontend usa Vite e JavaScript com módulos próprios. Os dados ficam localmen
 - Branch: `main`.
 - Vincular um banco D1 sob o nome `DB` no ambiente de produção e nos previews, se necessários.
 - Gerar SQL com `npm run schema`.
-- Aplicar **primeiro** `database/migrations/0002_original_schema.sql` e **depois** `0003_runtime_columns.sql`.
+- Aplicar as migrações **em ordem**: `0002_original_schema.sql`, `0003_runtime_columns.sql` e `0004_apk_runtime_tables.sql` (a terceira é gerada por `npm run schema`).
 - Definir `OMF_APP_PASSWORD` e `OMF_COOKIE_SECRET` como secrets do Pages.
 - Na tela Backup: entrar na nuvem, carregar dados D1 para obter a versão, então salvar modificações.
 
@@ -37,3 +37,9 @@ A estrutura derivada do SQLite inclui 28 tabelas com 360 colunas originais e 93 
 ## Estado
 
 **Em desenvolvimento — não é uma reprodução integral validada.** As funções centrais possuem testes automatizados; as dependências exclusivas do Android e recursos de Open Finance ainda não foram reproduzidos. O banco remoto depende de configuração e testes no Cloudflare.
+
+## Verificação de outubro de 2026
+
+Foi realizado um teste externo com dados fictícios no Cloudflare, que comprovou navegação e persistência local. Esse teste detectou lançamento de receita na conta Investimentos, excluída dos totais de contas. Foram corrigidas a escolha padrão da conta nos formulários e a exclusão de contas ignoradas nos totais. As correções possuem testes automatizados; a interface atualizada ainda precisa de reteste externo e a persistência D1 ainda não foi validada.
+
+**Não apresentar esta versão como equivalência integral do APK.** Há módulos e regras nativas pendentes.

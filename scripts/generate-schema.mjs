@@ -1,3 +1,4 @@
+import{extensionSchema}from "../database/extension-schema.js";
 import {runtimeExtra} from "../database/runtime-columns.js";
 import {readSchema} from "../database/schema-map.js";
 import {writeFileSync,mkdirSync} from "node:fs";
@@ -18,4 +19,5 @@ writeFileSync("database/migrations/0002_original_schema.sql","-- Esquema portado
 const runtime=runtimeExtra();const migration=[];
 for(const [table,cols] of Object.entries(runtime))for(const col of cols)migration.push('ALTER TABLE "'+table+'" ADD COLUMN "'+col.name+'" '+col.type+';');
 writeFileSync("database/migrations/0003_runtime_columns.sql","-- Campos observados nos scripts SQL do APK (não constam no SQLite inicial).\n-- Tipos inferidos, a verificar com os comandos e a execução real.\n"+migration.join("\n")+"\n");
+const runtimeTables=extensionSchema(),externalSql=[];for(const[table,fields]of Object.entries(runtimeTables)){const defs=fields.map(x=>'"'+x.name+'" '+x.type);if(["tags","notificacoes","open_finance_items"].includes(table))defs.push('UNIQUE("id")');if(table==="orcamentos_agrupamento")defs.push('UNIQUE("id_filho")','CHECK("id_pai" <> "id_filho")');externalSql.push('CREATE TABLE IF NOT EXISTS "'+table+'" ('+defs.join(",")+');')}externalSql.push("CREATE INDEX IF NOT EXISTS idx_tag_tx_id ON tags_transacoes(id_transacao,tipo_transacao);");writeFileSync("database/migrations/0004_apk_runtime_tables.sql","-- Tabelas runtime observadas nos arquivos CriarTabela.sql do APK\n"+externalSql.join("\n")+"\n");
 console.log("Geradas",Object.keys(tables).length,"tabelas originais,",(Object.values(tables).reduce((s,x)=>s+x.length,0)),"colunas.");

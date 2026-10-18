@@ -8,3 +8,5 @@ test("fechamento do cartão desloca a primeira parcela",()=>{const d=seed();d.ca
 test("proibi transferência da conta para ela mesma",()=>{assert.throws(()=>createMovement(seed(),"transferencia",{descricao:"A",valor:10,id_conta_origem:"acc2",id_conta_destino:"acc2"}))});
 test("status dos vencimentos",()=>{const s=distribution([{data:"2026-10-01",paid:true,valor:10},{data:"2026-10-01",paid:false,valor:20},{data:"2026-10-20",paid:false,valor:30},{data:"2026-11-20",paid:false,valor:40}],"2026-10-18");assert.deepEqual(s.map(x=>x.value),[10,30,20,40])});
 test("fim de mês bissexto e não bissexto",()=>{assert.equal(shiftDate("2026-01-31",1),"2026-02-28");assert.equal(shiftDate("2028-01-31",1),"2028-02-29")});
+
+test("saldo passa de um mês para o seguinte",()=>{const d=seed();createMovement(d,"receita",{descricao:"Salário",valor:2000,data:"2026-10-01",id_conta:"acc3",paid:true});createMovement(d,"despesa",{descricao:"Conta",valor:400,data:"2026-11-03",id_conta:"acc3",paid:true});assert.equal(accountStats(d,d.contas[2],"2026-11").initial,2000);assert.equal(accountStats(d,d.contas[2],"2026-11").current,1600)});

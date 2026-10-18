@@ -14,3 +14,5 @@ jobs:
       - run: npm install --no-audit --no-fund
       - run: npm test
       - run: npm run build
+      - run: python tests/schema_sqlite.py
+      - run: node --check functions/api/_session.js && node --check functions/api/auth.js && node --check functions/api/state.js

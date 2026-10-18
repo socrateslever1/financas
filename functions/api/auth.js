@@ -1,0 +1,4 @@
+import{configured,json,valid,passwordMatches,makeCookie,sameOrigin}from "./_session.js";
+export async function onRequestGet({request,env}){return json({configured:configured(env),authenticated:await valid(request,env)})}
+export async function onRequestPost({request,env}){if(!configured(env))return json({error:"Configure DB, OMF_APP_PASSWORD e OMF_COOKIE_SECRET no Cloudflare"},503);if(!sameOrigin(request))return json({error:"Origem não permitida"},403);let password;try{({password}=await request.json())}catch{return json({error:"JSON inválido"},400)}if(typeof password!=="string"||password.length>512||!(await passwordMatches(password,env.OMF_APP_PASSWORD)))return json({error:"Credenciais inválidas"},401);return json({ok:true},200,{"Set-Cookie":await makeCookie(env)})}
+export async function onRequestDelete(){return json({ok:true},200,{"Set-Cookie":"omf_session=; HttpOnly; Secure; SameSite=Strict; Path=/api; Max-Age=0"})}

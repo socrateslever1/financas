@@ -1,3 +1,4 @@
+import {runtimeExtra} from "../database/runtime-columns.js";
 import {readSchema} from "../database/schema-map.js";
 import {writeFileSync,mkdirSync} from "node:fs";
 const tables=readSchema(), ddl=[];
@@ -14,4 +15,7 @@ ddl.push('CREATE TABLE IF NOT EXISTS "web_meta" (id TEXT PRIMARY KEY,version INT
 ddl.push("INSERT OR IGNORE INTO web_meta (id,version) VALUES ('main',0);");
 mkdirSync("database/migrations",{recursive:true});
 writeFileSync("database/migrations/0002_original_schema.sql","-- Esquema portado do SQLite de Minhas Finanças 7.2.3.\n-- Os 28 nomes de tabelas e suas 360 colunas são preservados.\n\n"+ddl.join("\n\n")+"\n");
+const runtime=runtimeExtra();const migration=[];
+for(const [table,cols] of Object.entries(runtime))for(const col of cols)migration.push('ALTER TABLE "'+table+'" ADD COLUMN "'+col.name+'" '+col.type+';');
+writeFileSync("database/migrations/0003_runtime_columns.sql","-- Campos observados nos scripts SQL do APK (não constam no SQLite inicial).\n-- Tipos inferidos, a verificar com os comandos e a execução real.\n"+migration.join("\n")+"\n");
 console.log("Geradas",Object.keys(tables).length,"tabelas originais,",(Object.values(tables).reduce((s,x)=>s+x.length,0)),"colunas.");
